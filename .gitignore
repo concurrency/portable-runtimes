@@ -1,0 +1,7 @@
+.sconsign.dblite
+.sconf_temp
+config.log
+**.o
+*.a
+.deps
+config.h
