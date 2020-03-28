@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ins_sec.h"
 #include "ins_pi.h"
 #include "ins_pri.h"
+#include "ins_chan.h"
 
 /* 0x23 - 0x22 0xF3 - boolinvert */
 TVM_INSTRUCTION (ins_boolinvert)

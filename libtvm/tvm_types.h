@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define TVM_TYPES_H
 
 #include "tvm_config.h"
+#include "config.h"
 
 #ifndef HAVE_INTTYPES_H
 
@@ -74,7 +75,7 @@ typedef WORD 		WORDPTR;
 #else
 typedef BYTE * 		BYTEPTR;
 typedef INT16 *		INT16PTR;
-typedef WORD * 		WORDPTR;
+typedef WORD*		WORDPTR;
 #endif
 
 #endif /* !TVM_TYPES_H */

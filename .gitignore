@@ -5,3 +5,6 @@ config.log
 *.a
 .deps
 config.h
+**.old
+posix/tvm
+libtvm/tvm_config.h

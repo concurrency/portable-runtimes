@@ -2,10 +2,10 @@
 
 #include "tvm.h"
 #include "instructions.h"
-#include "libtvm/ins_mobile.h"
-#include "libtvm/ins_pi.h"
-#include "libtvm/ins_proc.h"
-#include "libtvm/ins_rmox.h"
+#include "ins_mobile.h"
+#include "ins_pi.h"
+#include "ins_proc.h"
+#include "ins_rmox.h"
 
 const unsigned int extended_secondaries_min = 559;
 const unsigned int extended_secondaries_max = 589;

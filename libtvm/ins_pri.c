@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "jumptbl_ex_sec.h"
 #else /* !TVM_OCCAM_PI */
 #include "ins_pi.h"
+#include "ins_proc.h"
 #endif /* !TVM_OCCAM_PI */
 #endif /* !TVM_DISPATCH_SWITCH */
 

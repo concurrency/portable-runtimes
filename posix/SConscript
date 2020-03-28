@@ -1,14 +1,9 @@
-Import('env')
-local = env.Clone()
+Import("env")
 
+# firmware_env.Append(SKROCFLAGS=['--no-std-libs'])
+# firmware_h = firmware_env.OccamBytecodeHeader('firmware.h', 'firmware.occ')
 
-
-firmware_env = local.Clone()
-firmware_env.Append(SKROCFLAGS=['--no-std-libs'])
-firmware_h = firmware_env.OccamBytecodeHeader('firmware.h', 'firmware.occ')
-
-
-tvm_env  = local.Clone()
+tvm_env  = env
 tvm_conf = tvm_env.Configure(config_h = 'config.h', help=False)
 
 headers  = Split('''
@@ -25,16 +20,32 @@ for f in functions:
     tvm_conf.CheckFunc(f)
 
 tvm_conf.Define('VERSION', '"1.0.0"', 'The version of the package')
-tvm_env = tvm_conf.Finish()        
-tvm_env.Append(CCFLAGS = '-DHAVE_CONFIG_H')
+tvm_conf.Define('TVM_USE_FPU', 1, 'define to allow FPU usage')
+tvm_conf.Define('TVM_FIRMWARE_PATH', "\".\"", 'Default path to firmware')
+tvm_conf.Define('TVM_LIBRARY_PATH', "\".\"", "default library path")
+
+
+env = tvm_conf.Finish()        
+env.Append(CCFLAGS = '-DHAVE_CONFIG_H')
 
 tvm_src = Split('''
         main.c
         sffi.c
         unix_io.c
+        tbc.c
+        introspect.c
+        vm.c
+        ffi.c
         ''')
 
-tvm = tvm_env.Program('tvm', tvm_src, LIBS='$TVM_LIB')
-tvm_env.Depends(tvm, firmware_h)
-tvm_env.Depends(tvm, '$TVM_LIB')
-tvm_env.Append(CPPPATH='../../runtime/libtvm')
+tvm = env.Program(
+    'tvm', 
+    tvm_src, 
+    LIBS=["libtvm", "dl"],
+    LIBPATH=["../libtvm"],
+    CPPPATH=["../libtvm"],
+    # CFLAGS=["-m32"],
+    # LDFLAGS=["-m32"]
+    )
+
+env.Append(CPPPATH='../libtvm')

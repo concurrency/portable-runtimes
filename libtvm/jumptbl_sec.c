@@ -2,15 +2,15 @@
 
 #include "tvm.h"
 #include "instructions.h"
-#include "libtvm/ins_alt.h"
-#include "libtvm/ins_chan.h"
-#include "libtvm/ins_float.h"
-#include "libtvm/ins_mobile.h"
-#include "libtvm/ins_pi.h"
-#include "libtvm/ins_sec.h"
-#include "libtvm/ins_t800.h"
-#include "libtvm/ins_t9000.h"
-#include "libtvm/ins_timer.h"
+#include "ins_alt.h"
+#include "ins_chan.h"
+#include "ins_float.h"
+#include "ins_mobile.h"
+#include "ins_pi.h"
+#include "ins_sec.h"
+#include "ins_t800.h"
+#include "ins_t9000.h"
+#include "ins_timer.h"
 
 const unsigned int secondaries_min = 0;
 const unsigned int secondaries_max = 254;

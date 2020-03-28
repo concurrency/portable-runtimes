@@ -221,7 +221,9 @@ def write_jumptable(defs, fn, name, keys):
 				max = key_int
 	header_list = sorted(headers.keys());
 	for h in header_list:
-		bits.append("#include \"%s\"\n" % h)
+		s = "#include \"%s\"\n" % h
+		s = s.replace("libtvm/", "")
+		bits.append(s)
 
 	bits.append("""
 const unsigned int %s_min = %d;

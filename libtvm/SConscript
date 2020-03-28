@@ -1,4 +1,6 @@
-local = Environment()
+Import("env")
+
+local = env.Clone()
 
 # TODO:
 #  * Implement compilation of other types of dispatch
@@ -6,7 +8,7 @@ local = Environment()
 ##########################################################################
 # Define source and target files
 ##########################################################################
-tvm_sources =  ['interpreter.c', 'scheduler.c']
+tvm_sources =  ['interpreter.c', 'scheduler.c', 'tencode.c']
 dispatch_src = Split('''ins_alt.c
                   ins_barrier.c
                   ins_chan.c
@@ -19,53 +21,62 @@ dispatch_src = Split('''ins_alt.c
                   ins_sec.c 
                   ins_t800.c
                   ins_t9000.c
-                  ins_timer.c''')
+                  ins_timer.c
+                  ''')
 dispatch_generated = Split('''
                   jumptbl_ex_sec.c
                   jumptbl_pri.c
                   jumptbl_sec.c
                   ins_names.h
-                  dispatch_ins.c''')
+                  ''')
 
 
-
+conf = local.Configure(config_h = "config.h", help = False)
 ##########################################################################
 # Configuration of libtvm
 ##########################################################################
-#FIXME: Needs cleaning up properly somehow
-def commonDefines(cnf):
-  cnf.Define('TVM_WORD_LENGTH', 4, 'set to the wordlength of the target')
-  #cnf.Define('TVM_EMULATE_T2', 0, 'define to emulate a T2 processor')
-  #cnf.Define('TVM_EMULATE_T4', 1, 'define to emulate a T4 processor')
-  cnf.Define('TVM_EMULATE_T8', 1, 'define to emulate a T8 processor')
-  #cnf.Define('TVM_SHORT_OPS',  0, 'define to T9000 short ops')
-  #cnf.Define('TVM_PROFILING', 0, 'define to enable profiling')
-  cnf.Define('TVM_OS_DARWIN', 1, 'define for Darwin TVM')
-  #cnf.Define('TVM_OS_FREEBSD', 1, 'define for FreeBSD TVM')
-  #cnf.Define('TVM_OS_LINUX', 1, 'define for Linux TVM')
-  #cnf.Define('TVM_OS_NONE', 1, 'define for OS independent TVM')
-  #cnf.Define('TVM_OS_SOLARIS', 1, 'define for Solaris TVM')
-  #cnf.Define('TVM_OS_WINDOWS', 1, 'define for Windows TVM')
-  cnf.Define('TVM_OCCAM_PI', 1, 'define to enable occam-pi support')
-  #cnf.Define('TVM_CUSTOM_MEM_OPS', 1, 'define to enable memcpy/memset overriding')
-  #cnf.Define('TVM_USE_MEMCPY', 1, 'define to use memcpy')
-  #cnf.Define('TVM_USE_MEMSET', 1, 'define to use memset')
-  cnf.Define('TVM_DISPATCH_SWITCH', 1, 'define to dispatch instructions using switch rather than a jump table')
-  #cnf.Define('TVM_BIG_ENDIAN', 1, 'define for big-endian TVM')
-  cnf.Define('TVM_LITTLE_ENDIAN', 1, 'define for little-endian TVM')
-  cnf.Define('TVM_USE_FPU', 1, 'define to allow FPU usage')
-  cnf.Define('TVM_USE_INLINE', 1, 'define to allow inline keyword usage')
-  #cnf.Define('TVM_DYNAMIC_MEMORY', 1, 'define to alloc dynamic memory allocation')
-  #cnf.Define('TVM_USE_TLSF', 1, 'define to use TLSF dynamic memory allocator')
-  #cnf.Define('TVM_USE_MALLOC', 1, 'define to allow malloc usage')
+def commonDefines(conf):
+  conf.Define('HAVE_INTTYPES', 1, 'have standard int types')
+  conf.Define('TVM_WORD_LENGTH', 4, 'set to the wordlength of the target')
+  conf.Define('TVM_EMULATE_T4', 1, 'define to emulate a T8 processor')
+  conf.Define('TVM_LITTLE_ENDIAN', 1, 'define for little-endian TVM')
+  conf.Define('TVM_USE_FPU', 1, 'define to allow FPU usage')
+  conf.Define('TVM_OS_LINUX', 1, 'define for Linux TVM')
+  conf.Define('TVM_INTERNALS', 1, 'use access macros')
+  conf.Define('TVM_OCCAM_PI', 1, 'define to enable occam-pi support')
+  conf.Define('HAVE_NANOSLEEP', 1, 'can sleep fast')
+  conf.Define('TVM_DISPATCH_SWITCH', 1, 'define to dispatch instructions using switch rather than a jump table')
+
+#conf.Define('TVM_DISPATCH_SWITCH', 1, 'define to dispatch instructions using switch rather than a jump table')
+#conf.Define('TVM_USE_INLINE', 1, 'define to allow inline keyword usage')  
+#conf.Define('TVM_OS_DARWIN', 1, 'define for Darwin TVM')
+#conf.Define('TVM_DYNAMIC_MEMORY', 1, 'define to alloc dynamic memory allocation')
+#conf.Define('TVM_EXTERNAL_CHANNEL_BUNDLES', 0, 'what it says')
+#conf.Define('TVM_OCCAM_PI', 1, 'define to enable occam-pi support')
+#conf.Define('TVM_DYNAMIC_OCCAM_PI', 1, 'more dynamics')
+#conf.Define('TVM_EMULATE_T2', 0, 'define to emulate a T2 processor')
+#conf.Define('TVM_EMULATE_T4', 1, 'define to emulate a T4 processor')
+#conf.Define('TVM_USE_MEMCPY', 1, 'define to use memcpy')
+#conf.Define('TVM_USE_MEMSET', 1, 'define to use memset')
+#conf.Define('TVM_OS_FREEBSD', 1, 'define for FreeBSD TVM')
+#conf.Define('TVM_OS_NONE', 1, 'define for OS independent TVM')
+#conf.Define('TVM_OS_SOLARIS', 1, 'define for Solaris TVM')
+#conf.Define('TVM_OS_WINDOWS', 1, 'define for Windows TVM')
+#conf.Define('TVM_SHORT_OPS',  0, 'define to T9000 short ops')
+#conf.Define('TVM_PROFILING', 0, 'define to enable profiling')
+#conf.Define('TVM_CUSTOM_MEM_OPS', 1, 'define to enable memcpy/memset overriding')
+#conf.Define('TVM_BIG_ENDIAN', 1, 'define for big-endian TVM')
+#conf.Define('TVM_DYNAMIC_MEMORY', 1, 'define to alloc dynamic memory allocation')
+#conf.Define('TVM_USE_TLSF', 1, 'define to use TLSF dynamic memory allocator')
+#conf.Define('TVM_USE_MALLOC', 1, 'define to allow malloc usage')
+#conf.Define('TVM_INTERNALS', 1, 'use access macros')
 
 # Generate config.h
-conf = local.Configure(config_h = "config.h", help = False)
 conf.CheckCHeader(['stdlib.h', 'stdio.h', 'string.h', 
                    'sys/types.h', 'math.h', 'inttypes.h'])
 commonDefines(conf)
 local = conf.Finish()
-local.Append(CCFLAGS = '-DHAVE_CONFIG_H')
+#local.Append(CCFLAGS = '-DHAVE_CONFIG_H')
 
 # Generate tvm_config.h
 conf = local.Configure(config_h = "tvm_config.h", help = False)
@@ -79,20 +90,32 @@ tvm_config_h = local.File('tvm_config.h')
 ##########################################################################
 # Call out to generate dispatch (table + switch) files (make-dispatch)
 ##########################################################################
+import os
 local.Command(
-      dispatch_generated,
+      dispatch_generated, # target
+      # list(map(lambda s: s.replace("libtvm/", ""), dispatch_src)), # source
       dispatch_src,
       Action(
         'python ${TARGET.dir}/make-dispatch.py -o ${TARGET.dir} $SOURCES',
+        # 'cd libtvm ; echo $SOURCE; python make-dispatch.py -o . $SOURCE; cd ..',
         'Generating libtvm dispatch files'))
 
-
-
+# 'python ${TARGET.dir}/make-dispatch.py -o ${TARGET.dir} $SOURCES',
+        
 ##########################################################################
 # Definition of the libtvm library
 ##########################################################################
-tvm_lib = local.Library("tvm", tvm_sources, CPPPATH='.')
+all_sources = dispatch_generated + dispatch_src + tvm_sources
+tvm_lib = local.Library(
+  "tvm", 
+  tvm_sources, 
+  CPPPATH=[".", "libtvm"],
+  LIBS=["m"],
+  #CFLAGS=["-m32"],
+  #LDFLAGS=["-m32"]
+  )
 
 # local['TVM_CONFIG_H'] = tvm_config_h
 # local['ENV']['SKROC_TVM_CONFIG_H'] = tvm_config_h.path
-# local['TVM_LIB'] = tvm_lib
+#env['TVM_LIB'] = tvm_lib
+#env['TVM_LIB_H'] = env.File('tvm.h')

@@ -2,7 +2,7 @@
 
 #include "tvm.h"
 #include "instructions.h"
-#include "libtvm/ins_pri.h"
+#include "ins_pri.h"
 
 const unsigned int primaries_min = 0;
 const unsigned int primaries_max = 15;
