@@ -46,7 +46,9 @@ int read_tbc_file (const char *fn, BYTE **data_p, int *length_p)
 	return 0;
 }
 
-tbc_t *decode_tbc (BYTE *data, int length)
+// 20200329 MCJ 
+// Changed int to unsigned int for casting purposes.
+tbc_t *decode_tbc (BYTE *data, unsigned int length)
 {
 	tenc_element_t element;
 	tbc_t *tbc = NULL;

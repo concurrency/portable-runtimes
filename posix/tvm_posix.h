@@ -109,7 +109,7 @@ extern void install_sffi (ECTX ectx);
 
 /*{{{  tbc.c */
 extern int read_tbc_file (const char *fn, BYTE **data, int *length);
-extern tbc_t *decode_tbc (BYTE *data, int length);
+extern tbc_t *decode_tbc (BYTE *data, unsigned int length);
 extern void free_bytecode (bytecode_t *bc);
 extern bytecode_t *load_bytecode (const char *file);
 /*}}}*/

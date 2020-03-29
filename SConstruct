@@ -1,7 +1,6 @@
 import os
 
 env = Environment(
-  # ENV = {'PATH' : os.environ['PATH']},
   CPPATH=["libtvm", "posix"],
   LIBPATH=["libtvm"],
   CC="clang",

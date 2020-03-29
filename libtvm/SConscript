@@ -2,9 +2,6 @@ Import("env")
 
 local = env.Clone()
 
-# TODO:
-#  * Implement compilation of other types of dispatch
-
 ##########################################################################
 # Define source and target files
 ##########################################################################
@@ -50,11 +47,15 @@ def commonDefines(conf):
   # conf.Define('SIXTYFOUR_BIT_UPCAST', 1, 'upcasting support on big machines')
   # conf.Define('DEBUG_INTERPRETER', 1, "yep")
   
+  # Without this flag, there is no TLP for POSIX.
   conf.Define('TVM_OCCAM_PI', 1, 'define to enable occam-pi support')
-  conf.Define('TVM_EXTERNAL_CHANNEL_BUNDLES', 1, 'what it says')
-  conf.Define('TVM_DYNAMIC_OCCAM_PI', 1, 'more dynamics')
-  conf.Define('TVM_USE_MALLOC', 1, 'define to allow malloc usage')
-  conf.Define('TVM_DYNAMIC_MEMORY', 1, 'define to alloc dynamic memory allocation')
+
+  # These flags may be desirable, but not strictly necessary, to
+  # run occam programs in 32 bit on POSIX.
+  #conf.Define('TVM_EXTERNAL_CHANNEL_BUNDLES', 1, 'what it says')
+  #conf.Define('TVM_DYNAMIC_OCCAM_PI', 1, 'more dynamics')
+  #conf.Define('TVM_USE_MALLOC', 1, 'define to allow malloc usage')
+  #conf.Define('TVM_DYNAMIC_MEMORY', 1, 'define to alloc dynamic memory allocation')
   conf.Define('HAVE_CONFIG_H', 1, 'needed for tvm_posix')
 
 #conf.Define('TVM_DISPATCH_SWITCH', 1, 'define to dispatch instructions using switch rather than a jump table')
