@@ -63,7 +63,7 @@ TVM_INSTRUCTION (ins_dist)
 /* 0x2F - 0x22 0xFF - disc - disable channel */
 TVM_INSTRUCTION (ins_disc)
 {
-	WORDPTR chan_ptr	= (WORDPTR) CREG;
+	WORDPTR chan_ptr	= (WORDPTR) UPCAST CREG;
 	WORD guard		= BREG;
 	WORD process		= AREG;
 	WORD fired		= 0;
@@ -71,7 +71,7 @@ TVM_INSTRUCTION (ins_disc)
 	if (guard) {
 		WORD chan_proc = read_word (chan_ptr);
 		
-		if (chan_proc == (((WORD) WPTR) | 1)) {
+		if (chan_proc == (((WORD) UPCAST WPTR) | 1)) {
 			/* Channel word is our WPTR; not fired */
 			write_word (chan_ptr, NOT_PROCESS_P);
 		} 
@@ -135,8 +135,8 @@ TVM_INSTRUCTION (ins_altwt)
 		UNDEFINE_STACK_RET ();
 	} else {
 		WORKSPACE_SET (WPTR, WS_STATE, WAITING_P);
-		WORKSPACE_SET (WPTR, WS_ECTX, (WORD) ectx);
-		WORKSPACE_SET (WPTR, WS_IPTR, (WORD) IPTR);
+		WORKSPACE_SET (WPTR, WS_ECTX, (WORD) UPCAST ectx);
+		WORKSPACE_SET (WPTR, WS_IPTR, (WORD) UPCAST IPTR);
 		RUN_NEXT_ON_QUEUE_RET ();
 	}
 }
@@ -178,12 +178,12 @@ TVM_INSTRUCTION (ins_enbt)
 /* 0x48 - 0x24 0xF8 - enbc - enable channel */
 TVM_INSTRUCTION (ins_enbc)
 {
-	WORDPTR chan_ptr	= (WORDPTR) BREG;
+	WORDPTR chan_ptr	= (WORDPTR) UPCAST BREG;
 	WORD 	guard		= AREG;
 	
 	if (guard) {
 		WORD chan_value	= read_word (chan_ptr);
-		WORD this_ws	= ((WORD) WPTR) | 1;
+		WORD this_ws	= ((WORD) UPCAST WPTR) | 1;
 
 		if (chan_value == NOT_PROCESS_P) {
 			/* Empty channel; enable */
@@ -254,8 +254,8 @@ TVM_INSTRUCTION (ins_taltwt)
 	}
 
 	WORKSPACE_SET (WPTR, WS_STATE, WAITING_P);
-	WORKSPACE_SET (WPTR, WS_ECTX, (WORD) ectx);
-	WORKSPACE_SET (WPTR, WS_IPTR, (WORD) IPTR);
+	WORKSPACE_SET (WPTR, WS_ECTX, (WORD) UPCAST ectx);
+	WORKSPACE_SET (WPTR, WS_IPTR, (WORD) UPCAST IPTR);
 	RUN_NEXT_ON_QUEUE_RET ();
 }
 

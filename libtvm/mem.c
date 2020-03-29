@@ -49,7 +49,7 @@ BYTEPTR _tvm_memcpy (BYTEPTR dst, BYTEPTR src, UWORD n)
 	/* If everything is word aligned then copy words, else copy
 	 * the bytes one by one.
 	 */
-	if (!((n | (UWORD) dst | (UWORD) src) & (TVM_WORD_LENGTH - 1))) {
+	if (!((n | ((UWORD) UPCAST dst) | ((UWORD) UPCAST src)) & (TVM_WORD_LENGTH - 1))) {
 		WORDPTR dst_w = (WORDPTR) dst;
 		WORDPTR src_w = (WORDPTR) src;
 		/* Reduce bytes to words */
@@ -78,7 +78,7 @@ BYTEPTR _tvm_memset (BYTEPTR s, WORD c, UWORD n)
 	/* If everything is word aligned and there are > 4 words then set
 	 * words, else set the bytes one by one.
 	 */
-	if (!((n | (UWORD) s) & (TVM_WORD_LENGTH - 1)) && (n >> (WSH + 2))) {
+	if (!((n | (UWORD) UPCAST s) & (TVM_WORD_LENGTH - 1)) && (n >> (WSH + 2))) {
 		WORDPTR s_w = (WORDPTR) s;
 		/* Expand byte data of c to a word */
 		c &= 0xff;

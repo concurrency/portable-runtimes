@@ -1,7 +1,15 @@
+import os
+
 env = Environment(
+  # ENV = {'PATH' : os.environ['PATH']},
   CPPATH=["libtvm", "posix"],
   LIBPATH=["libtvm"],
-  #LDFLAGS=["-m32"]
+  CC="clang",
+  CFLAGS=["-m32", "-v"],
+  LINKFLAGS=["-m32", "-v"],
+  #AR=["llvm-ar-6.0"],
+  LDMODULE="ld.lld",
+  SHLINK="ld.lld"
 )
 Export("env")
 

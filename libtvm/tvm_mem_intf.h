@@ -129,8 +129,8 @@ extern double read_wordd(WORDPTR ptr);
 /*}}}*/
 #else
 /*{{{  Native memory interface */
-#define read_word(LOC)			(*((WORDPTR)(LOC)) )
-#define write_word(LOC,VAL)		( *((WORDPTR)(LOC)) ) = (VAL)
+#define read_word(LOC)			(*((WORDPTR) (LOC)) )
+#define write_word(LOC,VAL)		( *((WORDPTR) (LOC)) ) = (VAL)
 #define wordptr_minus(PTR,LOC)		( ((WORDPTR)PTR) - (LOC) )
 #define wordptr_plus(PTR,LOC)		( ((WORDPTR)PTR) + (LOC) )
 

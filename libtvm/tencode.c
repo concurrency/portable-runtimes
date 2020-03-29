@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tvm.h"
 #include "tvm_tbc.h"
+#include <string.h>
 
 WORD tenc_decode_int (BYTE *src)
 {

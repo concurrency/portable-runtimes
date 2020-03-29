@@ -56,7 +56,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 /*{{{  Data movement */
 TVM_HELPER int channel_input (ECTX ectx, BYTEPTR dst_ptr, WORD len, WORDPTR src_wptr)
 {
-	BYTEPTR	src_ptr = (BYTEPTR) WORKSPACE_GET (src_wptr, WS_POINTER);
+	BYTEPTR	src_ptr = (BYTEPTR) UPCAST WORKSPACE_GET (src_wptr, WS_POINTER);
 	tvm_memcpy (dst_ptr, src_ptr, len);
 	copy_type_shadow (ectx, dst_ptr, src_ptr, len);
 	return ECTX_CONTINUE;
@@ -64,7 +64,7 @@ TVM_HELPER int channel_input (ECTX ectx, BYTEPTR dst_ptr, WORD len, WORDPTR src_
 
 TVM_HELPER int channel_output (ECTX ectx, BYTEPTR src_ptr, WORD len, WORDPTR dst_wptr)
 {
-	BYTEPTR	dst_ptr = (BYTEPTR) WORKSPACE_GET (dst_wptr, WS_POINTER);
+	BYTEPTR	dst_ptr = (BYTEPTR) UPCAST WORKSPACE_GET (dst_wptr, WS_POINTER);
 	tvm_memcpy (dst_ptr, src_ptr, -len);
 	copy_type_shadow (ectx, dst_ptr, src_ptr, -len);
 	return ECTX_CONTINUE;
@@ -72,7 +72,7 @@ TVM_HELPER int channel_output (ECTX ectx, BYTEPTR src_ptr, WORD len, WORDPTR dst
 
 TVM_HELPER int channel_swap (ECTX ectx, BYTEPTR src_ptr, WORD len, WORDPTR dst_wptr)
 {
-	BYTEPTR	dst_ptr = (BYTEPTR) WORKSPACE_GET (dst_wptr, WS_POINTER);
+	BYTEPTR	dst_ptr = (BYTEPTR) UPCAST WORKSPACE_GET (dst_wptr, WS_POINTER);
 	swap_data_word (ectx, (WORDPTR) dst_ptr, (WORDPTR) src_ptr);
 	return ECTX_CONTINUE;
 }
@@ -127,9 +127,9 @@ TVM_HELPER int chan_io (ECTX ectx,
 			CHAN_IO_EXT ext)
 {
 	WORD	chan_value = read_word (chan_ptr);
-	WORDPTR other_WPTR = (WORDPTR) (chan_value & (~1));
+	WORDPTR other_WPTR = (WORDPTR) UPCAST (chan_value & (~1));
 
-	*requeue = (WORDPTR) chan_value;
+	*requeue = (WORDPTR) UPCAST chan_value;
 
 	#ifdef TVM_TYPE_SHADOW
 	if (read_type (ectx, chan_ptr) != STYPE_CHAN)
@@ -188,13 +188,13 @@ TVM_HELPER int chan_io (ECTX ectx,
 	}
 	
 	/* Store state */
-	WORKSPACE_SET (WPTR, WS_POINTER, (WORD) data_ptr);
-	WORKSPACE_SET (WPTR, WS_ECTX, (WORD) ectx);
+	WORKSPACE_SET (WPTR, WS_POINTER, (WORD) UPCAST data_ptr);
+	WORKSPACE_SET (WPTR, WS_ECTX, (WORD) UPCAST ectx);
 	WORKSPACE_SET (WPTR, WS_PENDING, data_len);
-	WORKSPACE_SET (WPTR, WS_IPTR, (WORD) IPTR);
+	WORKSPACE_SET (WPTR, WS_IPTR, (WORD) UPCAST IPTR);
 	
 	/* Put this process into the channel word */
-	write_word (chan_ptr, (WORD) WPTR);
+	write_word (chan_ptr, (WORD) UPCAST WPTR);
 
 	return _ECTX_DESCHEDULE;
 }
@@ -225,7 +225,7 @@ TVM_HELPER int chan_std_io (ECTX ectx,
 		return ECTX_CONTINUE;
 	}
 
-	requeue = (WORDPTR) (((WORD) requeue) & (~1));
+	requeue = (WORDPTR) UPCAST (((WORD) UPCAST requeue) & (~1));
 
 	if (requeue != NOT_PROCESS_P) {
 		LOAD_PROCESS_RET (requeue);
@@ -269,8 +269,8 @@ TVM_HELPER int chan_swap (ECTX ectx, WORDPTR chan_ptr, WORDPTR data_ptr)
 /* 0x07 - 0xF7 - in - input message */
 TVM_INSTRUCTION (ins_in)
 {
-	BYTEPTR data_ptr	= (BYTEPTR) CREG;
-	WORDPTR chan_ptr	= (WORDPTR) BREG;
+	BYTEPTR data_ptr	= (BYTEPTR) UPCAST CREG;
+	WORDPTR chan_ptr	= (WORDPTR) UPCAST BREG;
 	WORD bytes		= AREG;
 
 	return chan_in (ectx, bytes, chan_ptr, data_ptr);
@@ -279,8 +279,8 @@ TVM_INSTRUCTION (ins_in)
 /* 0x0B - 0xFB - out - output message */
 TVM_INSTRUCTION (ins_out)
 {
-	BYTEPTR data_ptr	= (BYTEPTR) CREG;
-	WORDPTR chan_ptr	= (WORDPTR) BREG;
+	BYTEPTR data_ptr	= (BYTEPTR) UPCAST CREG;
+	WORDPTR chan_ptr	= (WORDPTR) UPCAST BREG;
 	WORD bytes		= AREG;
 
 	return chan_out (ectx, bytes, chan_ptr, data_ptr);
@@ -290,7 +290,7 @@ TVM_INSTRUCTION (ins_out)
 TVM_INSTRUCTION (ins_outbyte)
 {
 	BYTEPTR data_ptr	= (BYTEPTR) WPTR;
-	WORDPTR chan_ptr	= (WORDPTR) BREG;
+	WORDPTR chan_ptr	= (WORDPTR) UPCAST BREG;
 	BYTE data		= (BYTE) AREG;
 
 	/* Put the byte to be transfered at the top of the workspace */
@@ -303,7 +303,7 @@ TVM_INSTRUCTION (ins_outbyte)
 TVM_INSTRUCTION (ins_outword)
 {
 	BYTEPTR data_ptr	= (BYTEPTR) WPTR;
-	WORDPTR chan_ptr	= (WORDPTR) BREG;
+	WORDPTR chan_ptr	= (WORDPTR) UPCAST BREG;
 	WORD data		= AREG;
 
 	/* Put the word to be transfered at the top of the workspace */

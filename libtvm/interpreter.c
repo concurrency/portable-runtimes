@@ -277,7 +277,7 @@ int tvm_ectx_install_tlp (ECTX ectx, BYTEPTR code,
 	write_type (ectx, WPTR, STYPE_DATA);
 
 	/* Pad stack frame */
-	frame_size = calc_frame_size (argc, (WORD) vs, 0);
+	frame_size = calc_frame_size (argc, (WORD) UPCAST vs, 0);
 	if (frame_size < 4) {
 		WPTR = wordptr_minus (WPTR, 4 - frame_size);
 		frame_size = 4;
@@ -286,14 +286,14 @@ int tvm_ectx_install_tlp (ECTX ectx, BYTEPTR code,
 	/* Set up forking barrier pointer */
 	if (fb) {
 		WPTR = wordptr_minus (WPTR, 1);
-		write_word (WPTR, (WORD) fb);
+		write_word (WPTR, (WORD) UPCAST fb);
 		write_type (ectx, WPTR, STYPE_MT);
 	}
 
 	/* Set up vectorspace pointer */
 	if (vs) {
 		WPTR = wordptr_minus (WPTR, 1);
-		write_word (WPTR, (WORD) vs);
+		write_word (WPTR, (WORD) UPCAST vs);
 		write_type (ectx, WPTR, STYPE_VS);
 	}
 	
@@ -321,7 +321,7 @@ int tvm_ectx_install_tlp (ECTX ectx, BYTEPTR code,
 	/* Store the return pointer, to completion byte code */
 	/* FIXME: this won't work for virtual memory right? */
 	WPTR = wordptr_minus (WPTR, 1);
-	write_word (WPTR, (WORD) wordptr_plus (WPTR, frame_size));
+	write_word (WPTR, (WORD) UPCAST wordptr_plus (WPTR, frame_size));
 	write_type (ectx, WPTR, STYPE_WS);
 
 	return 0;
@@ -332,8 +332,8 @@ static void disconnect_channel (WORDPTR ptr)
 	WORD chan_value = read_word (ptr);
 
 	if ((chan_value & (~1)) != NOT_PROCESS_P) {
-		WORDPTR ws	= (WORDPTR) (chan_value & (~1));
-		ECTX	ectx	= (ECTX) WORKSPACE_GET (ws, WS_ECTX);
+		WORDPTR ws	= (WORDPTR) UPCAST (chan_value & (~1));
+		ECTX	ectx	= (ECTX) UPCAST WORKSPACE_GET (ws, WS_ECTX);
 		if(chan_value & 1) {
 			WORD alt_state = WORKSPACE_GET (ws, WS_STATE);
 
@@ -351,7 +351,7 @@ static void disconnect_channel (WORDPTR ptr)
 					break; /* Error state... */
 			}
 		} else {
-			BYTEPTR	data_ptr = (BYTEPTR) WORKSPACE_GET (ws, WS_POINTER);
+			BYTEPTR	data_ptr = (BYTEPTR) UPCAST WORKSPACE_GET (ws, WS_POINTER);
 			WORD	data_len = WORKSPACE_GET (ws, WS_PENDING);
 
 			if (data_len > 0) {
@@ -404,7 +404,7 @@ void tvm_ectx_disconnect (ECTX ectx)
 		switch (ectx->tlp_fmt[i]) {
 			case '?':
 			case '!':
-				disconnect_channel ((WORDPTR) ectx->tlp_argv[i]);
+				disconnect_channel ((WORDPTR) UPCAST ectx->tlp_argv[i]);
 				break;
 			#ifdef TVM_DYNAMIC_OCCAM_PI
 			case 'C':
@@ -447,8 +447,8 @@ int tvm_ectx_waiting_on (ECTX ectx, WORDPTR ws_base, WORD ws_len)
 		switch (ectx->tlp_fmt[i]) {
 			case '?': 
 			case '!':
-				ptr = (WORDPTR) ectx->tlp_argv[i];
-				ptr = (WORDPTR) read_word (ptr);
+				ptr = (WORDPTR) UPCAST ectx->tlp_argv[i];
+				ptr = (WORDPTR) UPCAST read_word (ptr);
 				if (ptr >= ws_base && ptr <= ws_end)
 					return 1; /* dependency */
 				break;

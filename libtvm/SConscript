@@ -8,7 +8,7 @@ local = env.Clone()
 ##########################################################################
 # Define source and target files
 ##########################################################################
-tvm_sources =  ['interpreter.c', 'scheduler.c', 'tencode.c']
+tvm_sources =  ['interpreter.c', 'scheduler.c', 'tencode.c', 'tlsf.c']
 dispatch_src = Split('''ins_alt.c
                   ins_barrier.c
                   ins_chan.c
@@ -37,15 +37,25 @@ conf = local.Configure(config_h = "config.h", help = False)
 ##########################################################################
 def commonDefines(conf):
   conf.Define('HAVE_INTTYPES', 1, 'have standard int types')
-  conf.Define('TVM_WORD_LENGTH', 4, 'set to the wordlength of the target')
-  conf.Define('TVM_EMULATE_T4', 1, 'define to emulate a T8 processor')
-  conf.Define('TVM_LITTLE_ENDIAN', 1, 'define for little-endian TVM')
-  conf.Define('TVM_USE_FPU', 1, 'define to allow FPU usage')
   conf.Define('TVM_OS_LINUX', 1, 'define for Linux TVM')
+  
+  conf.Define('TVM_EMULATE_T4', 1, 'define to emulate a T8 processor')
+  conf.Define('TVM_WORD_LENGTH', 4, 'set to the wordlength of the target')
+  conf.Define('TVM_LITTLE_ENDIAN', 1, 'define for little-endian TVM')
   conf.Define('TVM_INTERNALS', 1, 'use access macros')
-  conf.Define('TVM_OCCAM_PI', 1, 'define to enable occam-pi support')
+  # conf.Define('TVM_USE_FPU', 1, 'define to allow FPU usage')
+  
   conf.Define('HAVE_NANOSLEEP', 1, 'can sleep fast')
   conf.Define('TVM_DISPATCH_SWITCH', 1, 'define to dispatch instructions using switch rather than a jump table')
+  # conf.Define('SIXTYFOUR_BIT_UPCAST', 1, 'upcasting support on big machines')
+  # conf.Define('DEBUG_INTERPRETER', 1, "yep")
+  
+  conf.Define('TVM_OCCAM_PI', 1, 'define to enable occam-pi support')
+  conf.Define('TVM_EXTERNAL_CHANNEL_BUNDLES', 1, 'what it says')
+  conf.Define('TVM_DYNAMIC_OCCAM_PI', 1, 'more dynamics')
+  conf.Define('TVM_USE_MALLOC', 1, 'define to allow malloc usage')
+  conf.Define('TVM_DYNAMIC_MEMORY', 1, 'define to alloc dynamic memory allocation')
+  conf.Define('HAVE_CONFIG_H', 1, 'needed for tvm_posix')
 
 #conf.Define('TVM_DISPATCH_SWITCH', 1, 'define to dispatch instructions using switch rather than a jump table')
 #conf.Define('TVM_USE_INLINE', 1, 'define to allow inline keyword usage')  
@@ -76,7 +86,7 @@ conf.CheckCHeader(['stdlib.h', 'stdio.h', 'string.h',
                    'sys/types.h', 'math.h', 'inttypes.h'])
 commonDefines(conf)
 local = conf.Finish()
-#local.Append(CCFLAGS = '-DHAVE_CONFIG_H')
+local.Append(CCFLAGS = '-DHAVE_CONFIG_H')
 
 # Generate tvm_config.h
 conf = local.Configure(config_h = "tvm_config.h", help = False)
@@ -110,10 +120,11 @@ tvm_lib = local.Library(
   "tvm", 
   tvm_sources, 
   CPPPATH=[".", "libtvm"],
-  LIBS=["m"],
-  #CFLAGS=["-m32"],
-  #LDFLAGS=["-m32"]
+  LIBS=["m", "math"],
+  LD=["ld.lld"]
   )
+
+Default(tvm_lib)
 
 # local['TVM_CONFIG_H'] = tvm_config_h
 # local['ENV']['SKROC_TVM_CONFIG_H'] = tvm_config_h.path

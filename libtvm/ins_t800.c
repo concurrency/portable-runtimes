@@ -45,6 +45,6 @@ TVM_INSTRUCTION (ins_wsubdb)
 	 * a shift followed by a WSUB or BSUB when accessing double word
 	 * array items.
 	 */
-	STACK2_RET((WORD)wordptr_plus((WORDPTR)AREG, BREG * 2), CREG, AREGt, CREGt);
+	STACK2_RET((WORD) UPCAST wordptr_plus((WORDPTR) UPCAST AREG, BREG * 2), CREG, AREGt, CREGt);
 }
 

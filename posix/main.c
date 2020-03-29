@@ -198,9 +198,9 @@ static int install_user_ctx (const char *fn)
 		tlp = (char *) tlp_fmt;
 	}
 
-	tlp_argv[0] = (WORD) &kyb_channel;
-	tlp_argv[1] = (WORD) &scr_channel;
-	tlp_argv[2] = (WORD) &err_channel;
+	tlp_argv[0] = (WORD)  &kyb_channel;
+	tlp_argv[1] = (WORD)  &scr_channel;
+	tlp_argv[2] = (WORD)  &err_channel;
 
 	for (tlp_len = 0; valid_tlp && (tlp[tlp_len] != '\0'); ++tlp_len) {
 		char arg = tlp[tlp_len];

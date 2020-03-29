@@ -26,13 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define ADD_TO_QUEUE_IPTR(WS,IP) \
 	do { 							\
-		WORKSPACE_SET ((WS), WS_IPTR, (WORD)(IP)); 	\
+		WORKSPACE_SET ((WS), WS_IPTR, (WORD) UPCAST (IP)); 	\
 		ADD_TO_QUEUE ((WS));				\
 	} while (0)
 
 #define ADD_TO_QUEUE_ECTX(WS,ret) \
 	do { 							\
-		ECTX dst = (ECTX) WORKSPACE_GET ((WS), WS_ECTX);\
+		ECTX dst = (ECTX) UPCAST WORKSPACE_GET ((WS), WS_ECTX);\
 		if (dst != ectx) {				\
 			(ret) = dst->add_to_queue_external (dst, ectx, (WS)); \
 		} else {					\
@@ -75,7 +75,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define LOAD_PROCESS_RET(WS) \
 	do { 							\
-		ECTX dst = (ECTX) WORKSPACE_GET ((WS), WS_ECTX);\
+		ECTX dst = (ECTX) UPCAST WORKSPACE_GET ((WS), WS_ECTX);\
 		if (dst != ectx) {				\
 			int ret;				\
 			ret = dst->add_to_queue_external (dst, ectx, (WS)); \
@@ -86,7 +86,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 			}					\
 		} else {					\
 			WPTR = (WS);				\
-			IPTR = (BYTEPTR)			\
+			IPTR = (BYTEPTR) UPCAST 			\
 				WORKSPACE_GET (WPTR, WS_IPTR);	\
 			return ECTX_CONTINUE;			\
 		}						\

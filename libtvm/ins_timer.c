@@ -99,7 +99,7 @@ TVM_INSTRUCTION (ins_tin)
 		/* Store our reschedule time in our workspace */
 		WORKSPACE_SET(WPTR, WS_TIME, reschedule_time);
 		/* Store the IPTR in our workspace */
-		WORKSPACE_SET(WPTR, WS_IPTR, (WORD)IPTR);
+		WORKSPACE_SET(WPTR, WS_IPTR, (WORD) UPCAST IPTR);
 		
 		/* We need to insert ourselves into the timer queue, this is an ordered
 		 * queue, after that we need to reschedule another process */

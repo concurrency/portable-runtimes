@@ -106,8 +106,8 @@ TVM_INSTRUCTION (ins_lend3)
 {
 	/* Loop start offset comes in from AREG */
 	/* Loop control block ptr in BREG */
-	WORDPTR loopcount_ptr = wordptr_plus((WORDPTR) BREG, 1);
-	WORDPTR loopindex_ptr = (WORDPTR) BREG;
+	WORDPTR loopcount_ptr = wordptr_plus((WORDPTR) UPCAST BREG, 1);
+	WORDPTR loopindex_ptr = (WORDPTR) UPCAST BREG;
 	WORD loopcount = read_word(loopcount_ptr) - 1;
 
 	/* Decrement count */
@@ -118,7 +118,7 @@ TVM_INSTRUCTION (ins_lend3)
 	}
 	else
 	{
-		WORDPTR loopstep_ptr = wordptr_plus((WORDPTR) BREG, 2);
+		WORDPTR loopstep_ptr = wordptr_plus((WORDPTR) UPCAST BREG, 2);
 		WORD loopindex = read_word(loopindex_ptr);
 
 		/* Increment index, by step */
@@ -136,8 +136,8 @@ TVM_INSTRUCTION (ins_lendb)
 {
 	/* Loop start offset comes in from AREG */
 	/* Loop control block ptr in BREG */
-	WORDPTR loopcount_ptr = wordptr_plus((WORDPTR) BREG, 1);
-	WORDPTR loopindex_ptr = (WORDPTR) BREG;
+	WORDPTR loopcount_ptr = wordptr_plus((WORDPTR) UPCAST BREG, 1);
+	WORDPTR loopindex_ptr = (WORDPTR) UPCAST BREG;
 	WORD loopcount = read_word(loopcount_ptr) - 1;
 
 	/* Decrement count */
@@ -187,7 +187,7 @@ TVM_INSTRUCTION (ins_extin)
 		EXT_CHAN_FUNCTION func = ectx->ext_chan_table[index].in;
 
 		if (func) {
-			return func (ectx, AREG, (BYTEPTR) CREG);
+			return func (ectx, AREG, (BYTEPTR) UPCAST CREG);
 		}
 	}
 	
@@ -204,7 +204,7 @@ TVM_INSTRUCTION (ins_extout)
 		EXT_CHAN_FUNCTION func = ectx->ext_chan_table[index].out;
 
 		if (func) {
-			return func (ectx, AREG, (BYTEPTR) CREG);
+			return func (ectx, AREG, (BYTEPTR) UPCAST CREG);
 		}
 	}
 	
@@ -317,23 +317,23 @@ TVM_HELPER int tvm_sem_claim(ECTX ectx, WORDPTR sem)
 		/* It is, join the queue */
 		WORKSPACE_SET(WPTR, WS_LINK, (WORD) NOT_PROCESS_P);
 		/* Save execution context */
-		WORKSPACE_SET(WPTR, WS_ECTX, (WORD) ectx);
+		WORKSPACE_SET(WPTR, WS_ECTX, (WORD) UPCAST ectx);
 		/* Save our IPTR */
-		WORKSPACE_SET(WPTR, WS_IPTR, (WORD) IPTR);
+		WORKSPACE_SET(WPTR, WS_IPTR, (WORD) UPCAST IPTR);
 		/* Check if the semaphores front pointer is null */
 		if(sem_fptr == NOT_PROCESS_P)
 		{
 			/* Add us as the only element */
-			write_word(wordptr_plus(sem, SEM_FPTR), (WORD) WPTR);
-			write_word(wordptr_plus(sem, SEM_BPTR), (WORD) WPTR);
+			write_word(wordptr_plus(sem, SEM_FPTR), (WORD) UPCAST WPTR);
+			write_word(wordptr_plus(sem, SEM_BPTR), (WORD) UPCAST WPTR);
 		}
 		else
 		{
 			/* Add us as the last element */
 			WORDPTR sem_bptr_ptr = wordptr_plus(sem, SEM_BPTR);
-			WORDPTR sem_bptr = (WORDPTR) read_word(sem_bptr_ptr);
-			WORKSPACE_SET(sem_bptr, WS_LINK, (WORD) WPTR);
-			write_word(sem_bptr_ptr, (WORD) WPTR);
+			WORDPTR sem_bptr = (WORDPTR) UPCAST read_word(sem_bptr_ptr);
+			WORKSPACE_SET(sem_bptr, WS_LINK, (WORD) UPCAST WPTR);
+			write_word(sem_bptr_ptr, (WORD) UPCAST WPTR);
 		}
 		RUN_NEXT_ON_QUEUE_RET();
 	}
@@ -354,10 +354,10 @@ TVM_HELPER int tvm_sem_release (ECTX ectx, WORDPTR sem)
 	else
 	{
 		/* Yes, so we need to update ptrs and schedule waiting process */
-		write_word(sem_fptr_ptr, WORKSPACE_GET((WORDPTR) sem_fptr, WS_LINK));
+		write_word(sem_fptr_ptr, WORKSPACE_GET((WORDPTR) UPCAST sem_fptr, WS_LINK));
 
 		/* Put the process we picked up semaphore queue onto run queue */
-		ADD_TO_QUEUE_ECTX_RET((WORDPTR)sem_fptr);
+		ADD_TO_QUEUE_ECTX_RET((WORDPTR) UPCAST sem_fptr);
 	}
 }
 
@@ -365,7 +365,7 @@ TVM_HELPER int tvm_sem_release (ECTX ectx, WORDPTR sem)
 TVM_INSTRUCTION (ins_sem_init)
 {
 
-	tvm_sem_init ((WORDPTR) AREG);
+	tvm_sem_init ((WORDPTR) UPCAST AREG);
 
 	UNDEFINE_STACK_RET ();
 }
@@ -373,13 +373,13 @@ TVM_INSTRUCTION (ins_sem_init)
 /* 0x7B - 0x27 0xFB - semclaim - claim semaphore */
 TVM_INSTRUCTION (ins_sem_claim)
 {
-	return tvm_sem_claim (ectx, (WORDPTR) AREG);
+	return tvm_sem_claim (ectx, (WORDPTR) UPCAST AREG);
 }
 
 /* 0x7C - 0x27 0xFC - semrelease - release semaphore */
 TVM_INSTRUCTION (ins_sem_release)
 {
-	return tvm_sem_release (ectx, (WORDPTR) AREG);
+	return tvm_sem_release (ectx, (WORDPTR) UPCAST AREG);
 }
 
 /****************************************************************************
@@ -400,7 +400,7 @@ TVM_INSTRUCTION (ins_checknotnull)
 /* 0xE8 - 0x2E 0xF8 - xable - Extended Channel I/O Enable */
 TVM_INSTRUCTION (ins_xable)
 {
-	WORDPTR chan_ptr	= (WORDPTR) AREG;
+	WORDPTR chan_ptr	= (WORDPTR) UPCAST AREG;
 	WORD chan_value		= read_word (chan_ptr);
 
 	/* This is like a single guard ALT */
@@ -424,12 +424,12 @@ TVM_INSTRUCTION (ins_xable)
 	if (chan_value == NOT_PROCESS_P) {
 		/* Save state, set ALT to waiting */
 		WORKSPACE_SET (WPTR, WS_STATE, WAITING_P);
-		WORKSPACE_SET (WPTR, WS_ECTX, (WORD) ectx);
-		WORKSPACE_SET (WPTR, WS_PENDING, (WORD) chan_ptr);
-		WORKSPACE_SET (WPTR, WS_IPTR, (WORD) IPTR);
+		WORKSPACE_SET (WPTR, WS_ECTX, (WORD) UPCAST ectx);
+		WORKSPACE_SET (WPTR, WS_PENDING, (WORD) UPCAST UPCAST chan_ptr);
+		WORKSPACE_SET (WPTR, WS_IPTR, (WORD) UPCAST IPTR);
 
 		/* Put ourselves into the channel word */
-		write_word (chan_ptr, ((WORD) WPTR) | 1);
+		write_word (chan_ptr, ((WORD) UPCAST WPTR) | 1);
 
 		/* Find something else to run */
 		RUN_NEXT_ON_QUEUE_RET ();
@@ -451,8 +451,8 @@ TVM_HELPER int channel_ext_xin (ECTX ectx, EXT_CB_INTERFACE *intf, void *ext_dat
 /* 0xE9 - 0x2E 0xF9 - xin - Extended Input */
 TVM_INSTRUCTION (ins_xin)
 {
-	BYTEPTR data_ptr = (BYTEPTR) CREG;
-	WORDPTR chan_ptr = (WORDPTR) BREG;
+	BYTEPTR data_ptr = (BYTEPTR) UPCAST CREG;
+	WORDPTR chan_ptr = (WORDPTR) UPCAST BREG;
 	WORDPTR requeue;
 	WORD data_len = AREG;
 	int ret;
@@ -479,7 +479,7 @@ TVM_INSTRUCTION (ins_xin)
 	}
 
 	/* Restore output process to channel word */
-	write_word (chan_ptr, (WORD) requeue);
+	write_word (chan_ptr, (WORD) UPCAST requeue);
 
 	return ECTX_CONTINUE;
 }
@@ -487,7 +487,7 @@ TVM_INSTRUCTION (ins_xin)
 /* 0xEC - 0x2E 0xFC - xend - Extended Channel I/O End */
 TVM_INSTRUCTION (ins_xend)
 {
-	WORDPTR chan_ptr = (WORDPTR) AREG;
+	WORDPTR chan_ptr = (WORDPTR) UPCAST AREG;
 	WORD chan_value = read_word (chan_ptr);
 
 	UNDEFINE_STACK ();
@@ -497,7 +497,7 @@ TVM_INSTRUCTION (ins_xend)
 		/* No; reset channel */
 		write_word (chan_ptr, NOT_PROCESS_P);
 		/* Put the outputting process on the run queue */
-		ADD_TO_QUEUE_ECTX_RET ((WORDPTR) (chan_value & (~1)));
+		ADD_TO_QUEUE_ECTX_RET ((WORDPTR) UPCAST (chan_value & (~1)));
 	}
 
 	return ECTX_CONTINUE;

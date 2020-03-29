@@ -16,6 +16,8 @@ static volatile WORD	alarm_time	= 0;
 
 /*{{{  tvm_get_time */
 #if defined(HAVE_GETTIMEOFDAY)
+#include <sys/time.h>
+
 static WORD tvm_get_time (ECTX ectx)
 {
 	struct timeval t;

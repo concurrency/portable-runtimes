@@ -199,7 +199,7 @@ TVM_INSTRUCTION (ins_ajw)
 TVM_INSTRUCTION (ins_call)
 {
 	/* Store registers in a new stack frame */
-	write_word_and_type(ectx, wordptr_minus(WPTR, 4 - 0), (WORD)IPTR, STYPE_RET);
+	write_word_and_type(ectx, wordptr_minus(WPTR, 4 - 0), (WORD) UPCAST IPTR, STYPE_RET);
 	write_word_and_type(ectx, wordptr_minus(WPTR, 4 - 1), AREG, AREGt);
 	write_word_and_type(ectx, wordptr_minus(WPTR, 4 - 2), BREG, BREGt);
 	write_word_and_type(ectx, wordptr_minus(WPTR, 4 - 3), CREG, CREGt);
@@ -207,7 +207,7 @@ TVM_INSTRUCTION (ins_call)
 	WPTR = wordptr_minus(WPTR, 4);
 
 	/* Set the AREG to the old IPTR */
-	STACK1((WORD)IPTR, STYPE_BC);
+	STACK1((WORD) UPCAST IPTR, STYPE_BC);
 
 	/* Set the new IPTR from the OREG */
 	IPTR = byteptr_plus(IPTR, OREG);
@@ -435,7 +435,7 @@ TVM_INSTRUCTION (ins_ldl)
 TVM_INSTRUCTION (ins_ldlp)
 {
 	/* Push WPTR+OREG onto the stack */
-	STACK((WORD)wordptr_plus(WPTR, OREG), AREG, BREG,
+	STACK((WORD) UPCAST wordptr_plus(WPTR, OREG), AREG, BREG,
 		STYPE_WS, AREGt, BREGt);
 
 	CLEAR(OREG);
@@ -462,7 +462,7 @@ TVM_INSTRUCTION (ins_ldlp)
 TVM_INSTRUCTION (ins_ldnl)
 {
 	/* Read from memory(AREG+OREG) */
-	WORDPTR offset = wordptr_plus((WORDPTR)AREG, OREG);
+	WORDPTR offset = wordptr_plus((WORDPTR) UPCAST AREG, OREG);
 	AREG = read_word(offset);
 	SET_AREGt(read_type(ectx, offset));
 
@@ -490,7 +490,7 @@ TVM_INSTRUCTION (ins_ldnl)
 TVM_INSTRUCTION (ins_ldnlp)
 {
 	/* Add the OREG to the AREG and store it in the AREG */
-	AREG = (WORD)wordptr_plus((WORDPTR)AREG, OREG);
+	AREG = (WORD) UPCAST wordptr_plus((WORDPTR) UPCAST AREG, OREG);
 	/* Type signature unchanged */
 
 	CLEAR(OREG);
@@ -549,7 +549,7 @@ TVM_INSTRUCTION (ins_stl)
 TVM_INSTRUCTION (ins_stnl)
 {
 	/* Put value in BREG into mem(AREG + OREG) */
-	write_word_and_type(ectx, wordptr_plus((WORDPTR)AREG, OREG), BREG, BREGt);
+	write_word_and_type(ectx, wordptr_plus((WORDPTR) UPCAST AREG, OREG), BREG, BREGt);
 	CLEAR(OREG);
 
 	/* Pop the stack */

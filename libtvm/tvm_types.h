@@ -41,6 +41,12 @@ typedef unsigned long long int UTWOWORD;
 
 #include <inttypes.h>
 
+#ifdef SIXTYFOUR_BIT_UPCAST
+#define UPCAST (intptr_t)
+#else
+#define UPCAST 
+#endif
+
 typedef uint8_t		BYTE;
 typedef int8_t		SBYTE;
 typedef int16_t		INT16;

@@ -37,13 +37,13 @@ TVM_INSTRUCTION (ins_rev)
 /* 0x01 - 0xF1 - lb - load byte */
 TVM_INSTRUCTION (ins_lb)
 {
-	STACK_RET((WORD)read_byte((BYTEPTR)AREG), BREG, CREG, STYPE_DATA, BREGt, CREGt);
+	STACK_RET((WORD)read_byte((BYTEPTR) UPCAST AREG), BREG, CREG, STYPE_DATA, BREGt, CREGt);
 }
 
 /* 0x02 - 0xF2 - bsub - byte subscript */
 TVM_INSTRUCTION (ins_bsub)
 {
-	STACK2_RET((WORD)byteptr_plus((BYTEPTR) AREG, BREG), CREG, PICK_POINTER_TYPE (AREGt, BREGt), CREGt);
+	STACK2_RET((WORD) UPCAST byteptr_plus((BYTEPTR) UPCAST AREG, BREG), CREG, PICK_POINTER_TYPE (AREGt, BREGt), CREGt);
 }
 
 /* 0x03 - 0xF3 - endp - end process */
@@ -51,18 +51,18 @@ TVM_INSTRUCTION (ins_endp)
 {
 	/* Check the process count */
 	/* if(((WORD *)AREG)[1] == 1) */
-	if(read_word(wordptr_plus((WORDPTR)AREG, 1)) == 1) 
+	if(read_word(wordptr_plus((WORDPTR) UPCAST AREG, 1)) == 1) 
 	{
 		/* No more child processes, continue as the parent process */
 
 		/* Set the process count to zero */
 		/* ((WORD *)AREG)[1] = 0; */
-		write_word(wordptr_plus((WORDPTR)AREG, 1), 0);
+		write_word(wordptr_plus((WORDPTR) UPCAST AREG, 1), 0);
 		/* Get the resume address from the workspace */
 		/* IPTR = (BYTE *)((WORD *)AREG)[0]; */
-		IPTR = (BYTEPTR)read_word((WORDPTR)AREG);
+		IPTR = (BYTEPTR) UPCAST read_word((WORDPTR) UPCAST AREG);
 		/* The AREG becomes the new WPTR */
-		WPTR = (WORDPTR)AREG;
+		WPTR = (WORDPTR) UPCAST AREG;
 		/* The entire stack becomes undefined */
 		UNDEFINE_STACK_RET();
 	}
@@ -72,8 +72,8 @@ TVM_INSTRUCTION (ins_endp)
 
 		/* Subtract one from the process count */
 		/*((WORD *)AREG)[1] = ((WORD *)AREG)[1] - 1;*/
-		write_word(wordptr_plus((WORDPTR)AREG, 1), 
-				read_word(wordptr_plus((WORDPTR)AREG, 1)) - 1);
+		write_word(wordptr_plus((WORDPTR) UPCAST AREG, 1), 
+				read_word(wordptr_plus((WORDPTR) UPCAST AREG, 1)) - 1);
 		/* The entire stack becomes undefined */
 		UNDEFINE_STACK();
 		/* Run the next process */
@@ -111,9 +111,9 @@ TVM_INSTRUCTION (ins_gcall)
 	 * stack macro in places like this?
 	 */
 	temp = AREG;
-	AREG = (WORD)IPTR;
+	AREG = (WORD) UPCAST IPTR;
 	SET_AREGt (STYPE_BC);
-	IPTR = (BYTEPTR)temp;
+	IPTR = (BYTEPTR) UPCAST temp;
 
 	/* FIXME: This is not the INMOS GCALL, it has been modified by fred (I
 	 * presume) to store the IPTR in WS_TOP. The original instruction does NOT
@@ -146,7 +146,7 @@ TVM_INSTRUCTION (ins_gt)
 TVM_INSTRUCTION (ins_wsub)
 {
 	/* FIXME: Same check as for bsub */
-	STACK2_RET((WORD)wordptr_plus((WORDPTR)AREG, BREG), CREG, AREGt, CREGt);
+	STACK2_RET((WORD) UPCAST wordptr_plus((WORDPTR) UPCAST AREG, BREG), CREG, AREGt, CREGt);
 }
 
 /* 0x0C - 0xFC - sub - subtract */
@@ -166,7 +166,7 @@ TVM_INSTRUCTION (ins_sub)
 /* 0x0D - 0xFD - startp - star process */
 TVM_INSTRUCTION (ins_startp)
 {
-	ADD_TO_QUEUE_IPTR((WORDPTR)AREG, byteptr_plus(IPTR, BREG));
+	ADD_TO_QUEUE_IPTR((WORDPTR) UPCAST AREG, byteptr_plus(IPTR, BREG));
 	UNDEFINE_STACK_RET();
 }
 
@@ -197,7 +197,7 @@ TVM_INSTRUCTION (ins_csub0)
 /* 0x15 - 0x21 0xF5 - stopp - stop process */
 TVM_INSTRUCTION (ins_stopp)
 {
-	WORKSPACE_SET((WORDPTR) WPTR, WS_IPTR, (WORD) IPTR);
+	WORKSPACE_SET((WORDPTR) WPTR, WS_IPTR, (WORD) UPCAST IPTR);
 
 	RUN_NEXT_ON_QUEUE_RET();
 }
@@ -351,7 +351,7 @@ again2:
 /* 0x1B - 0x21 0xFB - ldpi - load pointer to instruction */
 TVM_INSTRUCTION (ins_ldpi)
 {
-	STACK_RET((WORD)byteptr_plus(IPTR, AREG), BREG, CREG, STYPE_BC, BREGt, CREGt);
+	STACK_RET( (WORD) UPCAST byteptr_plus(IPTR, AREG), BREG, CREG, STYPE_BC, BREGt, CREGt);
 }
 
 /* 0x1D - 0x21 0xFD - xdble - extend to double */
@@ -387,7 +387,7 @@ TVM_INSTRUCTION (ins_rem)
 /* 0x20 - 0x22 0xF0 - ret - return */
 TVM_INSTRUCTION (ins_ret)
 {
-	BYTEPTR ret_addr = (BYTEPTR)read_word(WPTR);
+	BYTEPTR ret_addr = (BYTEPTR) UPCAST read_word(WPTR);
 
 	fill_type_shadow(ectx, (BYTEPTR)WPTR, 4 << WSH, STYPE_UNDEF);
 
@@ -408,21 +408,21 @@ TVM_INSTRUCTION (ins_lend)
 	 * assume that memory is all zeros before the program runs. eg: The scheme
 	 * interpreter inits memory to <void>.
 	 */
-	if(read_word(wordptr_plus((WORDPTR)BREG, 1)) > 1)
+	if(read_word(wordptr_plus((WORDPTR) UPCAST BREG, 1)) > 1)
 	{
 		/* FIXME: This is done the other way around in soccam, I think I followed
 		 * the order it was done in the book... check though */
-		write_word((WORDPTR)BREG, read_word((WORDPTR)BREG) + 1);
-		write_word(wordptr_plus((WORDPTR)BREG, 1), 
-				read_word(wordptr_plus((WORDPTR)BREG, 1)) - 1);
+		write_word((WORDPTR) UPCAST BREG, read_word((WORDPTR) UPCAST BREG) + 1);
+		write_word(wordptr_plus((WORDPTR) UPCAST BREG, 1), 
+				read_word(wordptr_plus((WORDPTR) UPCAST BREG, 1)) - 1);
 
 		IPTR = byteptr_minus(IPTR, AREG);
 	} 
 	else 
 	{
 		/* Decrement the counter */
-		write_word(wordptr_plus((WORDPTR)BREG, 1), 
-				read_word(wordptr_plus((WORDPTR)BREG, 1)) - 1);
+		write_word(wordptr_plus((WORDPTR) UPCAST BREG, 1), 
+				read_word(wordptr_plus((WORDPTR) UPCAST BREG, 1)) - 1);
 	 }			
 		
 	/* FIXME: I dont think the soccam instruction set the stack properly, it
@@ -629,13 +629,13 @@ TVM_INSTRUCTION (ins_lsub)
 /* 0x39 - 0x23 0xF9 - runp - run process */
 TVM_INSTRUCTION (ins_runp)
 {
-	ADD_TO_QUEUE_ECTX_RET((WORDPTR)AREG);
+	ADD_TO_QUEUE_ECTX_RET((WORDPTR) UPCAST AREG);
 }
 
 /* 0x3B - 0x23 0xFB - sb - store byte */
 TVM_INSTRUCTION (ins_sb)
 {
-	write_byte_and_type(ectx, (BYTEPTR)AREG, (BYTE)BREG, STYPE_DATA);
+	write_byte_and_type(ectx, (BYTEPTR) UPCAST AREG, (BYTE)BREG, STYPE_DATA);
 
 	STACK1_RET(CREG, CREGt);
 }
@@ -644,9 +644,9 @@ TVM_INSTRUCTION (ins_sb)
 /* 0x3C - 0x23 0xFC - gajw - general adjust workspace */
 TVM_INSTRUCTION (ins_gajw)
 {
-	WORD tmp = (WORD)WPTR;
+	WORD tmp = (WORD) UPCAST WPTR;
 
-	WPTR = (WORDPTR)AREG;
+	WPTR = (WORDPTR) UPCAST AREG;
 	AREG = tmp;
 	SET_AREGt (STYPE_WS);
 
@@ -711,7 +711,7 @@ TVM_INSTRUCTION (ins_and)
 TVM_INSTRUCTION (ins_move)
 {
 	
-	tvm_memcpy((BYTEPTR) BREG, (BYTEPTR) CREG, AREG);
+	tvm_memcpy((BYTEPTR) UPCAST BREG, (BYTEPTR) UPCAST CREG, AREG);
 	copy_type_shadow(ectx, (BYTEPTR) BREG, (BYTEPTR) CREG, AREG);
 	UNDEFINE_STACK_RET();
 }
@@ -793,7 +793,7 @@ TVM_INSTRUCTION (ins_stoperr)
 		UNDEFINE_STACK();
 
 		/* Store the instruction pointer at WPTR-1 */
-		write_word(wordptr_minus(WPTR, 1), (WORD)IPTR);
+		write_word(wordptr_minus(WPTR, 1), (WORD) UPCAST IPTR);
 
 		/* Run a new process */
 		RUN_NEXT_ON_QUEUE_RET();
