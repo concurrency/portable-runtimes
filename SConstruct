@@ -5,11 +5,8 @@ env = Environment(
   CPPATH=["libtvm", "posix"],
   LIBPATH=["libtvm"],
   CC="clang",
-  CFLAGS=["-m32", "-v"],
-  LINKFLAGS=["-m32", "-v"],
-  #AR=["llvm-ar-6.0"],
-  LDMODULE="ld.lld",
-  SHLINK="ld.lld"
+  CFLAGS=["-m32"],
+  LINKFLAGS=["-m32"],
 )
 Export("env")
 
