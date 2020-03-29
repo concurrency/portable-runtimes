@@ -3,9 +3,12 @@ import os
 env = Environment(
   CPPATH=["libtvm", "posix"],
   LIBPATH=["libtvm"],
-  CC="clang",
+  CC="emcc",
+  AR="emar",
+  RANLIB="emranlib",
   CFLAGS=["-m32"],
-  LINKFLAGS=["-m32"],
+  LINKFLAGS=["-m32", "--emrun"],
+  ENV = {'PATH' : os.environ['PATH']}
 )
 Export("env")
 

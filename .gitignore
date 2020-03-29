@@ -8,3 +8,6 @@ config.h
 **.old
 posix/tvm
 libtvm/tvm_config.h
+posix/tvm.html
+posix/tvm.js
+posix/tvm.wasm

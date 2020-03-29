@@ -40,14 +40,11 @@ tvm_src = Split('''
         ''')
 
 tvm = env.Program(
-    'tvm', 
+    'tvm.html', 
     tvm_src, 
     LIBS=["libtvm", "dl", "m"],
     LIBPATH=["../libtvm"],
-    CPPPATH=["../libtvm"],
-    # CFLAGS=["-m32"],
-    # LDFLAGS=["-m32"]
-
+    CPPPATH=["../libtvm"]
     )
 Default(tvm)
 
